@@ -26,14 +26,21 @@ type Title struct {
 	AddedDate         string
 }
 
+// LastChaper's Owner
+// ComickHID
+// Comick title
+// Comick Last Chapter
+//
+
 func NewTitleFromAPI(title *API.Obra) *Title {
+	// Check if ID has a uuid lenght.
 	if len(title.Id) != 36 {
 		log.Fatalln("Manga ID lenght is odd, something is smelling fishy. TitleID:\n", title.Id)
 	}
 
 	if len(title.Attributes.Title.En) > 128 || len(title.Attributes.Title.En) < 1 {
 		fmt.Println("The title: ", title.Attributes.Title.En, " lenght must be bettween 1 and 128 characters.")
-	}
+	} // Check if
 
 	if len(title.Type) > 32 || len(title.Type) < 2 {
 		fmt.Println("The title: ", title.Attributes.Title.En, " has a format: ", title.Type, ". But its lenght must be bettween 2 and 32 characters.")
@@ -43,6 +50,7 @@ func NewTitleFromAPI(title *API.Obra) *Title {
 		fmt.Println("The title: ", title.Attributes.Title.En, " has a status: ", title.Attributes.Status, ". But its lenght must be bettween 2 and 32 characters.")
 	}
 
+	// Generally, the OriginalLanguage is like "ko", so it should be always small.
 	if len(title.Attributes.OriginalLanguage) > 8 || len(title.Attributes.OriginalLanguage) < 1 {
 		fmt.Println("The title: ", title.Attributes.Title.En, " has a Country: ", title.Attributes.OriginalLanguage, ". But its lenght must be bettween 2 and 8 characters.")
 	}
@@ -56,7 +64,7 @@ func NewTitleFromAPI(title *API.Obra) *Title {
 		fmt.Println("The title: ", title.Attributes.Title.En, " has too many tags. Lenght: ", len(tags))
 	}
 
-	return &Title{
+	return &Title{ // The ID is only create when inserting the title.
 		ID:                "",
 		MangadexID:        title.Id,
 		Name:              title.Attributes.Title.En,
@@ -72,7 +80,6 @@ func NewTitleFromAPI(title *API.Obra) *Title {
 
 }
 
-// ! Enquanto a única maneira de cria o usuário é pesquisar e adicionar à lista, o uuid só será criado na inserção na DB.
 func NewTitleFromUser(title *Title) (*Title, error) {
 
 	// ! The uuid from the title will only be created when inserting the title.
@@ -127,7 +134,6 @@ func NewTitleFromUser(title *Title) (*Title, error) {
 
 }
 
-// DB is a global variable for the SQLite database connection
 type LiteStore struct {
 	DB *sql.DB
 }
@@ -151,7 +157,7 @@ func NewLiteStore() (*LiteStore, error) {
 	}, nil
 }
 
-// Init creates the Titles table if it doesn't exist
+
 func (ls *LiteStore) Init() error {
 	if ls == nil || ls.DB == nil {
 		return errors.New("database connection is not initialized")
@@ -184,11 +190,11 @@ func (ls *LiteStore) Init() error {
 	return nil
 }
 
-// Pronto!
+
 func (ls *LiteStore) InsertTitle(title *Title) error {
 	if ls == nil || ls.DB == nil {
 		fmt.Println("database connection is not initialized")
-		return errors.New("The attempt to add a title to your list failed")
+		return errors.New("DB: The attempt to add a title to your list failed")
 	}
 	stmt := "INSERT INTO Titles (TitleID, MangadexID, Name, Format, Status, Origin, Year, LastReadedChapter, LastAPIChapter,Tags,AddedDate) " +
 		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
@@ -216,13 +222,13 @@ func (ls *LiteStore) InsertTitle(title *Title) error {
 	}
 	if NumberOfRowsAffected != 1 {
 		fmt.Println("An error ocurred while trying to insert a title: ")
-		return errors.New("The attempt to add a title to your list failed")
+		return errors.New("DB: The attempt to add a title to your list failed")
 	}
 
 	return nil
 }
 
-// Pronto!
+
 func (ls *LiteStore) GetAllTitles() (*[]Title, error) {
 	if ls == nil || ls.DB == nil {
 		fmt.Println("database connection is not initialized")
@@ -257,7 +263,7 @@ func (ls *LiteStore) GetAllTitles() (*[]Title, error) {
 	return &titles, nil
 }
 
-// Pronto!
+
 func (ls *LiteStore) UpdateUserChapter(id string, lastChapter string) error {
 
 	pstmt, err := ls.DB.Prepare("UPDATE Titles SET LastReadedChapter = ? WHERE TitleID = ?;")
@@ -273,7 +279,7 @@ func (ls *LiteStore) UpdateUserChapter(id string, lastChapter string) error {
 	return nil
 }
 
-// Pronto!
+
 func (ls *LiteStore) UpdateAPIChapter(id string, lastChapter string) error {
 
 	pstmt, err := ls.DB.Prepare("UPDATE Titles SET LastAPIChapter = ? WHERE TitleID = ?;")
@@ -309,7 +315,7 @@ func (ls *LiteStore) DeleteTitle(titleId string) error {
 	}
 
 	if num != 1 {
-		return errors.New("Not found: this title is not in your list.")
+		return errors.New("NotFound: This title doesn't exist or isn't in your list")
 	}
 
 	return nil

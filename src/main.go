@@ -77,8 +77,6 @@ func main() {
 
 }
 
-// TODO!!! -> Alguma das duas rotas (createtitle ou GetTitles) está com um problema.
-
 // http://127.0.0.1:5582/api/search/?title=Leveling
 // TODO: Como combinar esquisa da DB e da API?
 func SearchTitle(c fiber.Ctx) error {
@@ -87,14 +85,14 @@ func SearchTitle(c fiber.Ctx) error {
 		return c.Status(400).JSON(&fiber.Map{"error": "true", "message": "The name of the title is empty or ."})
 	}
 
-	res, err := API.GetMangaResponseByTitle(titleName)
+	res, err := API.SearchMangDexTitles(titleName)
 	if err != nil {
 		return c.Status(400).JSON(&fiber.Map{"error": "true", "message": "The name of the title is empty."})
 	}
 
 	if res.Result != "ok" {
 		if res.Errr.Status == "404" {
-			return c.Status(400).JSON(&fiber.Map{"error": "true", "message": "not found: This title does not exist."})
+			return c.Status(404).JSON(&fiber.Map{"error": "true", "message": "not found: This title does not exist."})
 		} else {
 			log.Fatalln("Error:\nID: ", res.Errr.Id,
 				"\nStatus: ", res.Errr.Status,
@@ -103,7 +101,6 @@ func SearchTitle(c fiber.Ctx) error {
 		}
 
 	}
-
 	titles := make([]Store.Title, 0)
 
 	for i := 0; i < len(res.Data); i++ {
@@ -232,46 +229,3 @@ func DeleteHim(LiteS *Store.LiteStore, c fiber.Ctx) error {
 
 	return c.Status(200).JSON(&fiber.Map{"error": "", "message": "The title was succesfully deleted."})
 }
-
-// Search
-// Add
-//
-
-// ./go/static.go
-
-//app.Static(
-//	"/static",  // mount address
-//	"./public", // path to the file folder
-//)
-
-// It’s completely ok. Depending on the traffic amount you might want to put the static files somewhere else like s3 or similar.
-
-//I don't know about Fiber specifically but even if you use a cdn after you can point it to your app, it's then very easy do deploy a new version. Don't forget to set the Cache-Control for the browser and/or a cdn.
-
-// Começar desde cedo a enviar para prod é importante.
-// Então eu devo ou não já partir para isto?
-// Não! Eu estou aprendendo como terminar um projeto e entender o que junta o front do back-end.
-// Após isto eu posso fazer algo..
-
-// 1. Frontend: 4 horas
-// 2. Finalização da API: 3 horas.
-// 3. Expandir uso da API (envolve a mudança de todas as etapas): 2 horas.
-// 4. Implementar mais features: 1 hora.
-// 4. Implemento AUTH: 6 horas.
-// 5. Implemento testes: 2 horas.
-// 6. Criar um site mais complexo usando Bun, TanStack & React: 10 horas
-// 7. Criar um site mais complexo usando C#: 8 horas
-
-
-// 10/02/24: Mandar emails
-// -> Vagas na Elétrica
-// -> Vagas na FEI (novas)
-// -> Vaga da Toledo
-// -> Vagas na Computação
-// -> Cadastrar em aulas extras.
-// -> Perguntar sobre quantas horas faltam para eu completar as aulas de matérias extras.
-
-// Conversar com professores, pesquisar possíveis temas para o tema do TCC até 11/02.
-
-// Tentar terminar projeto até semana que vem.
-// Para o fim de semana do dia 22 eu poder inicializar cursos.

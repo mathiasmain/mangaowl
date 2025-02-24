@@ -16,10 +16,26 @@ interface Title {
   AddedDate:         string,
 }
 
+export function COuntry(country: string): string{
+  if (country === "ko") {
+    return "South Korea"
+  }
+  else if (country === "ja") {
+    return "Japan"
+  } else if (country === "ch")
+    {
+      return "China"
+    }
+  else {
+    return "Country not reconized."
+  }
+}
+
+
 function MangaList() { // Confuso? vá para: https://www.youtube.com/watch?v=00lxm_doFYw
 
   const {data, error, isError, isLoading} = useQuery({
-    queryKey: ["titles"],
+    queryKey: ["titles"], // text-center flex-col flex-auto
     queryFn: async () => {
       return (await (await fetch("http://127.0.0.1:5582/api/titles")).json()) as Title[];
     },
@@ -30,16 +46,38 @@ function MangaList() { // Confuso? vá para: https://www.youtube.com/watch?v=00l
     {console.log(error);}
     return <div>Something went wrong, please try again.</div>
   }
+
   return (
     <>
-      <h1 className="font-bold text-3xl flex-auto border-4 mb-3">Get them:</h1>
       <div>
         
         { isLoading && <div>Loading...</div>}
         
-        <ul className="">
+        <ul className=''>
             {data?.map((title) => {
-                return <li key={title.AddedDate}>{"\nName: "}{title.Name}{"\nUser Last Chapter :"}{title.LastReadedChapter}{"\nMangaDex Last Chapter :"},{title.LastAPIChapter}{"\nTitle's tags :"}{title.Tags} </li>;  // Supondo que `title` tenha uma propriedade `name`
+                if (title.ID === null) {
+                  return <p>Your list is empty! Search and save titles to start your marker list.</p>
+                }
+                return <li className = "bg-gray-700 box-border border-2 rounded-2xl m-2 max-w-auto" key={title.AddedDate}>
+                  <div className="font-bold text-yellow-300">{title.Name}</div>
+                  <div className="flex space-x-2 mr-8 ml-8 ">
+                    <div className="pl-2 pr-2">
+                        <div className="flex space-x-2 ml-8 mr-8 mb-2 mt-2">
+                            <div className="pr-2 pl-2 text-white rounded-lg">{"User's Chapter : "+title.LastReadedChapter}</div>
+                            <div className="pr-2 pl-2 text-white rounded-lg">{"Latest Chapter: "+ title.LastAPIChapter}</div>
+                        </div>
+                        <div className="flex space-x-2 ml-8 mr-8 mb-2 mt-2">{title.Tags.split(",").map((tag) => {
+                          return <div className="pr-2 pl-2 text-white rounded-lg">{tag}</div>
+                        })}</div>
+                        <div className="flex space-x-2  ml-8 mr-8 mb-2 mt-2">
+                          <div className="pr-2 pl-2 text-white rounded-lg">{"Release year: "+title.Year}</div>
+                          <div className="pr-2 pl-2 text-white rounded-lg">{"Original Country: "+COuntry(title.Country)}</div>
+                          <div className="pr-2 pl-2 text-white rounded-lg">{"Format: "+title.Format}</div>
+                          <div className="pr-2 pl-2 text-white rounded-lg">{"Status: "+title.Status}</div>
+                        </div>
+                    </div>
+                  </div>
+                  </li>;
             })}
             
         </ul>
