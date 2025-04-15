@@ -1,7 +1,7 @@
 
 ### MangaOwl
 ---
-É um projeto que busca tornar a leitura simultânea de várias obras mais fácil, oferecendo procura automática por novos capítulos usando a API do MangaDex e do Comick.
+É um projeto (em pausa) que busca tornar a leitura simultânea de várias obras mais fácil, oferecendo procura automática por novos capítulos usando a API do MangaDex e do Comick.
 
 
 ### Como utilizar?
